@@ -1,0 +1,44 @@
+name: GitHub Workflow for Student Progress
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-progress:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Check if student made the required changes
+        run: |
+          # Check if a specific phrase is added in the file
+          if ! grep -q "Make it pass" <file_name>; then
+            echo "Error: 'Make it pass' not found in <file_name>"
+            exit 1
+          fi
+          echo "'Make it pass' phrase found in <file_name>."
+
+      - name: Check if student updated completed_students.txt
+        run: |
+          # Check if student username is added to completed_students.txt
+          if ! grep -q "$GITHUB_ACTOR" completed_students.txt; then
+            echo "Error: $GITHUB_ACTOR not found in completed_students.txt"
+            exit 1
+          fi
+          echo "$GITHUB_ACTOR found in completed_students.txt"
+
+      - name: Display progress points
+        run: |
+          # For illustration, print the student's progress (this can be customized further)
+          echo "Progress check complete for $GITHUB_ACTOR."
+
+      - name: Success
+        run: echo "GitHub Workflow passed successfully."
+

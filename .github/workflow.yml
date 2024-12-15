@@ -1,24 +1,28 @@
-name: GitHub Workflow for Student Progress
+name: Student Branch Workflow
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  check-progress:
+  check-student-work:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Check if student made the required changes
+      - name: Check if student created a new branch
         run: |
-          # Check if a specific phrase is added in the file
+          if [ "${{ github.head_ref }}" == "main" ]; then
+            echo "Error: You must create a new branch, not push directly to 'main'."
+            exit 1
+          fi
+          echo "Branch ${GITHUB_HEAD_REF} successfully created."
+
+      - name: Check for required phrase in the file
+        run: |
           if ! grep -q "Make it pass" <file_name>; then
             echo "Error: 'Make it pass' not found in <file_name>"
             exit 1
@@ -27,18 +31,15 @@ jobs:
 
       - name: Check if student updated completed_students.txt
         run: |
-          # Check if student username is added to completed_students.txt
           if ! grep -q "$GITHUB_ACTOR" completed_students.txt; then
             echo "Error: $GITHUB_ACTOR not found in completed_students.txt"
             exit 1
           fi
           echo "$GITHUB_ACTOR found in completed_students.txt"
 
-      - name: Display progress points
+      - name: Show progress of student
         run: |
-          # For illustration, print the student's progress (this can be customized further)
-          echo "Progress check complete for $GITHUB_ACTOR."
+          echo "Checking progress of $GITHUB_ACTOR."
 
       - name: Success
         run: echo "GitHub Workflow passed successfully."
-
